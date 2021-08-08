@@ -2,3 +2,9 @@
 test/results/*
 *.log
 *.json
+
+#Virtual environment artifacts
+.venv/
+#macOS Finder artifacts
+*/.DS_Store
+.DS_Store
