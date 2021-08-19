@@ -38,13 +38,16 @@ def create_simple_test(resource_dir):
     result['libraries'] = [
         {'library_name': 'SeleniumLibrary',
          'library_alias': None,
-         'library_arguments': ['timeout=5.0', 'implicit_wait=0.0'],
+         # Change lines to keep them correct with RF 4.x format.
+         # 'library_arguments': ['timeout=5.0', 'implicit_wait=0.0'],
+         'library_arguments': ('timeout=5.0', 'implicit_wait=0.0'),
          'library_path': None}
     ]
     result['resources'] = [path.join(resource_dir, 'simple_resource2.robot')]
     result['variable_files'] = [
         {path.join(resource_dir, 'simple_variable_file.py'):
-            {'variable_file_arguments': ['arg11', 'arg22']}}
+            # {'variable_file_arguments': ['arg11', 'arg22']}}
+            {'variable_file_arguments': ('arg11', 'arg22')}}
         ]
     result['variables'] = ['${VAR2}']
     kws = {}
@@ -60,19 +63,20 @@ def create_simple_resource(resource_dir):
     result['table_type'] = 'resource_file'
     result['file_path'] = path.join(resource_dir, result['file_name'])
     lib_path = path.abspath(path.join(resource_dir, '..', 'FooBar.py'))
+    # Support for FR 4.x data structures in test results.
     result['libraries'] = [
         {'library_name': 'SeleniumLibrary',
          'library_alias': None,
-         'library_arguments': ['timeout=5.0'],
+         'library_arguments': ('timeout=5.0', 'env=Test'),
          'library_path': None},
         {'library_name': 'FooBar.py',
          'library_alias': None,
-         'library_arguments': [],
+         'library_arguments': (),
          'library_path': lib_path}
         ]
     result['variable_files'] = [
         {path.join(resource_dir, 'simple_variable_file.py'):
-            {'variable_file_arguments': ['arg11', 'arg22']}}
+            {'variable_file_arguments': ('arg11', 'arg22')}}
         ]
     result['resources'] = [path.join(resource_dir, 'simple_resource2.robot')]
     kws = {}
@@ -117,7 +121,8 @@ def my_kw_1():
 def my_kw_2():
     kw = {}
     kw['keyword_arguments'] = get_args(arg2='False', arg4=None)
-    kw['documentation'] = 'Some documentation.\\nIn multi line'
+    # kw['documentation'] = 'Some documentation.\\nIn multi line'
+    kw['documentation'] = 'Some documentation.\nIn multi line'
     kw['tags'] = ['tag1']
     kw['keyword_name'] = 'My Kw 2'
     return kw

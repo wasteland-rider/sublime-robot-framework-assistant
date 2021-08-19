@@ -45,10 +45,11 @@ Parser Should Be Able To Parse Library With Robot API Keyword Decorator
     ${lib_path} =    OperatingSystem.Normalize Path
     ...    ${CURDIR}${/}..${/}resource${/}test_data${/}suite_tree${/}LibraryWithReallyTooLongName.py
     ${result} =    Parse Library    ${lib_path}
-    ${kws} =    Set Variable    &{result}[keywords]
-    ${kw_with_deco} =    Set Variable    &{kws}[other_name_here]
+    # Change syntax to support RF 4.x dict structures.
+    ${kws} =    Create Dictionary    &{result}[keywords]
+    ${kw_with_deco} =    Create Dictionary    &{kws}[other_name_here]
     ${lib_path} =    String.Convert To Lowercase    ${lib_path}
-    ${lib_path_from_parser} =    String.Convert To Lowercase    &{kw_with_deco}[keyword_file]
+    ${lib_path_from_parser} =    String.Convert To Lowercase    ${kw_with_deco}[keyword_file]
     Should Be Equal As Strings
     ...    ${lib_path_from_parser}
     ...    ${lib_path}
@@ -62,9 +63,20 @@ Parser Should Be Able To Parse External Library From Custom Location
     ...    ${MYLIBRARY_KW}
 
 Parser Should Be Able To Parse External Library With Arguments From Custom Location
-    @{args} =   Create List    arg111    arg222
+    # @{args} =   Create List    arg111    arg222
+    # ${lib_path} =    OperatingSystem.Normalize Path
+    # ...    ${CURDIR}${/}..${/}resource${/}library${/}OtherMyLibrary.py
+    # ${result} =    Parse Library
+    # ...    ${lib_path}
+    # ...    ${args}
+    # Dictionaries Should Be Equal
+    # ...    ${result}
+    # ...    ${OTHERMYLIBRARY_KW}
+    # Change test a bit to support RF 4.x syntax and list structures.
+    ${args} =   Create List    arg111    arg222
     ${lib_path} =    OperatingSystem.Normalize Path
     ...    ${CURDIR}${/}..${/}resource${/}library${/}OtherMyLibrary.py
+    Log Many    ${args}
     ${result} =    Parse Library
     ...    ${lib_path}
     ...    ${args}
@@ -120,10 +132,14 @@ Verify Library Results
     Should Be Equal As Numbers
     ...    ${result_len}
     ...    ${expected_len}
-    :FOR    ${index}    IN RANGE    ${result_len}
-    \    Verify Library Keyword
-    \    ...    @{result_kws_values}[${index}]
-    \    ...    @{expected_kws_values}[${index}]
+    # Remove old RF For-loop syntax
+    FOR    ${index}    IN RANGE    ${result_len}
+        Log Many    ${result_kws_values}[${index}]
+        Log Many    ${result_kws_values}
+        Verify Library Keyword
+        ...    ${result_kws_values}[${index}]
+        ...    ${expected_kws_values}[${index}]
+    END
 
 Verify Library Keyword
     [Arguments]    ${result}    ${expected}

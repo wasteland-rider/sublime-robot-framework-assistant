@@ -1,5 +1,5 @@
 *** Settings ***
-Library           SeleniumLibrary    timeout=5.0
+Library           SeleniumLibrary    timeout=5.0    env=Test
 Documentation     foobar
 Resource          simple_resource2.robot
 Variables         simple_variable_file.py    arg11    arg22
