@@ -462,7 +462,7 @@ class DataParser():
             return name, arguments
         if name.startswith('${'):
             name_components = name.split('/')
-            path = self.path_variables[name_components[0][2:-1]]
+            path = self.path_variables[name_components[0]]
             if name_components[-1]:
                 tmp_name = '/'.join((path, name_components[-1]))
             else:
@@ -474,7 +474,7 @@ class DataParser():
         for argument in arguments:
             if argument.startswith('${'):
                 name_components = argument.split('/')
-                arg_path = self.path_variables[name_components[0][2:-1]]
+                arg_path = self.path_variables[name_components[0]]
                 if not arg_path:
                     continue
                 if name_components[-1]:
