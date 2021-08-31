@@ -3,7 +3,7 @@ import sublime
 import subprocess
 from platform import system
 from os import path, makedirs
-from ..setting.setting import get_setting
+from ..setting.setting import get_setting, get_path_file
 from ..setting.setting import SettingObject
 
 
@@ -21,6 +21,9 @@ def scan_popen_arg_parser(mode):
     arg_list.append('--module_search_path')
     for module in get_setting(SettingObject.module_search_path):
         arg_list.append(module)
+    if get_setting(SettingObject.path_file):
+        arg_list.append('--path_file')
+        arg_list.append(get_path_file(SettingObject.path_file))
     return arg_list
 
 

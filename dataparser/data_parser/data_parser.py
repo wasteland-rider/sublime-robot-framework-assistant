@@ -20,6 +20,8 @@ from db_json_settings import DBJsonSetting
 # Test import with new parser from RobotFramework 4
 # from rf-4-parser import SampleVisitor
 from parser_utils.rf4_parser import SampleVisitor
+# Import stuff for dispatching variables in names and arguments
+from parser_utils.path_variables import init_path_variables
 
 logging.basicConfig(
     format='%(levelname)s:%(asctime)s: %(message)s',
@@ -38,11 +40,12 @@ class DataParser():
     resource and test suite files.
     """
 
-    def __init__(self):
+    def __init__(self, path_file):
         self.file_path = None
         self.rf_variables = Variables()
         self.rf_var_storage = VariableStore(self.rf_variables)
         self.libdoc = LibraryDocBuilder()
+        self.path_variables = init_path_variables(path_file)
 
     def parse_resource(self, file_path):
         self.file_path = file_path
@@ -418,12 +421,16 @@ class DataParser():
             lib_name = path.basename(lib_name)
         else:
             lib_path = None
-        data[DBJsonSetting.library_name] = lib_name
+        processed_lib_name, processed_lib_args = self._check_and_replace_vars(lib_name, setting.args)
+        # data[DBJsonSetting.library_name] = lib_name
+        data[DBJsonSetting.library_name] = processed_lib_name
         data[DBJsonSetting.library_alias] = setting.alias
-        data[DBJsonSetting.library_arguments] = setting.args
+        # data[DBJsonSetting.library_arguments] = setting.args
+        data[DBJsonSetting.library_arguments] = processed_lib_args
         data[DBJsonSetting.library_path] = lib_path
         return data
 
+    # TODO: Add proccess variables in import.
     def _format_resource(self, setting, file_path):
         if path.isabs(setting):
             return setting
@@ -435,6 +442,7 @@ class DataParser():
                        'could not locate: {0}'.format(setting)))
             return resource_path
 
+    # TODO: Add proccess variables in import.
     def _format_variable_file(self, setting):
         data = {}
         v_path = normalise_path(path.join(
@@ -443,6 +451,38 @@ class DataParser():
         args['variable_file_arguments'] = setting.args
         data[v_path] = args
         return data
+
+    def _check_and_replace_vars(self, name, arguments):
+        # parsed_variables = RobotParser().parse_resource_file(FILENAME).variables
+        # sanitize_slash_var(parsed_variables)
+        # self.path_variables.set_from_variable_table(parsed_variables)
+        # self.path_variables.substitute_path()
+        if not self.path_variables:
+            return name, arguments
+        if name.startswith('${'):
+            name_components = name.split('/')
+            path = self.path_variables[name_components[0][2:-1]]
+            if name_components[-1]:
+                tmp_name = '/'.join((path, name_components[-1]))
+            else:
+                tmp_name = '/'.join((path, name_components[-2]))
+            tmp_name = path.abspath(tmp_name)
+        tmp_args = []
+        for argument in arguments:
+            if argument.startswith('${'):
+                name_components = argument.split('/')
+                arg_path = self.path_variables[name_components[0][2:-1]]
+                if not arg_path:
+                    continue
+                if name_components[-1]:
+                    tmp_arg = '/'.join((arg_path, name_components[-1]))
+                else:
+                    tmp_arg = '/'.join((arg_path, name_components[-2]))
+                tmp_arg = arg_path.abspath(tmp_arg)
+            tmp_args.append(tmp_arg)
+        return tmp_name, tmp_args
+
+
 
     # def _get_global_variables(self, model):
     #     var_data = []

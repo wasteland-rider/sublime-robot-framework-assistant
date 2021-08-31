@@ -68,6 +68,7 @@ class SettingObject(object):
     automatic_index_creation = 'robot_framework_automatic_indexing'
     automatic_database_update = 'robot_framework_automatic_database_update'
     kw_prefixes = 'robot_framework_keyword_prefixes'
+    path_file = 'paths_variables_file'
     PY3 = None
 
     def __new__(cls, val):
@@ -141,6 +142,8 @@ def get_setting(setting):
         return get_log_file()
     elif setting.lower() == SettingObject.python_binary:
         return get_python_binary()
+    elif setting.lower() == SettingObject.path_file:
+        return get_path_file(setting)
     else:
         return get_sublime_setting(setting)
 
@@ -154,6 +157,18 @@ def parse_project(setting):
         if setting in rf_project_data:
             rf_project_setting = rf_project_data[setting]
     return rf_project_setting
+
+def get_path_file(setting):
+    workspace = get_sublime_setting(SettingObject.workspace)
+    project_setting = parse_project(setting)
+    if not project_setting:
+        plugin_settings = sublime.load_settings('Robot.sublime-settings')
+        if plugin_settings.get(setting):
+            return path.join(workspace, plugin_settings.get(setting))
+        else:
+            return None
+    else:
+        return path.join(workspace, project_setting)
 
 
 def get_sublime_setting(setting):

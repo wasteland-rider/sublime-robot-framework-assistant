@@ -10,10 +10,10 @@ from data_queue.scanner import Scanner
 
 
 def scan_all(workspace, extension, db_path,
-             module_search_path, libs_in_xml):
+             module_search_path, libs_in_xml, path_file):
     for path_ in module_search_path:
         sys.path.append(path_)
-    scanner = Scanner(libs_in_xml)
+    scanner = Scanner(libs_in_xml, path_file)
     scanner.scan(
         workspace=workspace,
         ext=extension,
@@ -21,8 +21,8 @@ def scan_all(workspace, extension, db_path,
     )
 
 
-def scan_single(file_path, db_path, libs_in_xml):
-    scanner = Scanner(libs_in_xml)
+def scan_single(file_path, db_path, libs_in_xml, path_file):
+    scanner = Scanner(libs_in_xml, path_file)
     scanner.scan_single_file(file_path=file_path, db_path=db_path)
 
 
@@ -57,6 +57,10 @@ if __name__ == '__main__':
     c_parser.add_argument(
         '--path_to_lib_in_xml',
         help='Path to libraries in XML format')
+    c_parser.add_argument(
+        '--path_file',
+        default=None,
+        help='Path to path-variable storage file')
     args = c_parser.parse_args()
     module_search_path = []
     if args.module_search_path:
@@ -74,7 +78,8 @@ if __name__ == '__main__':
                 args.extension,
                 args.db_path,
                 module_search_path,
-                args.path_to_lib_in_xml)
+                args.path_to_lib_in_xml,
+                args.path_file)
     elif args.mode == 'single':
         if not args.path_to_file:
             raise ValueError(
@@ -86,5 +91,6 @@ if __name__ == '__main__':
             scan_single(
                 args.path_to_file,
                 args.db_path,
-                args.path_to_lib_in_xml
+                args.path_to_lib_in_xml,
+                args.path_file
             )
