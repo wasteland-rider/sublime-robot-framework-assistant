@@ -22,7 +22,7 @@ from db_json_settings import DBJsonSetting
 from parser_utils.rf4_parser import SampleVisitor
 # Import stuff for dispatching variables in names and arguments
 # from parser_utils.path_variables import init_path_variables
-from parser_utils.path_variables import init_path_variables
+from parser_utils.path_vars import init_path_variables
 
 logging.basicConfig(
     format='%(levelname)s:%(asctime)s: %(message)s',
@@ -468,6 +468,8 @@ class DataParser():
             else:
                 tmp_name = '/'.join((path, name_components[-2]))
             tmp_name = path.abspath(tmp_name)
+        else:
+            tmp_name = name
         tmp_args = []
         for argument in arguments:
             if argument.startswith('${'):
