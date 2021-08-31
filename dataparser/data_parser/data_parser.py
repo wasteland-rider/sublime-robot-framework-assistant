@@ -462,11 +462,11 @@ class DataParser():
             return name, arguments
         if name.startswith('${'):
             name_components = name.split('/')
-            path = self.path_variables[name_components[0]]
+            import_path = self.path_variables[name_components[0]]
             if name_components[-1]:
-                tmp_name = '/'.join((path, name_components[-1]))
+                tmp_name = '/'.join((import_path, name_components[-1]))
             else:
-                tmp_name = '/'.join((path, name_components[-2]))
+                tmp_name = '/'.join((import_path, name_components[-2]))
             tmp_name = path.abspath(tmp_name)
         else:
             tmp_name = name
