@@ -23,7 +23,7 @@ class Scanner(object):
     when files are changed by version control, like with git pull command.
     The database is folder where robot data is saved as json files.
     """
-    def __init__(self, xml_libraries=None, path_file):
+    def __init__(self, path_file, xml_libraries=None):
         self.queue = ParsingQueue()
         self.parser = DataParser(path_file)
         self.rf_data_type = [None, 'test_suite', 'resource']

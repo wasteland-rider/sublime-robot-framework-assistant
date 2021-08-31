@@ -13,7 +13,7 @@ def scan_all(workspace, extension, db_path,
              module_search_path, libs_in_xml, path_file):
     for path_ in module_search_path:
         sys.path.append(path_)
-    scanner = Scanner(libs_in_xml, path_file)
+    scanner = Scanner(path_file, libs_in_xml)
     scanner.scan(
         workspace=workspace,
         ext=extension,
@@ -22,7 +22,7 @@ def scan_all(workspace, extension, db_path,
 
 
 def scan_single(file_path, db_path, libs_in_xml, path_file):
-    scanner = Scanner(libs_in_xml, path_file)
+    scanner = Scanner(path_file, libs_in_xml)
     scanner.scan_single_file(file_path=file_path, db_path=db_path)
 
 
