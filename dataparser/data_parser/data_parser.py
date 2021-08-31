@@ -434,7 +434,8 @@ class DataParser():
     # TODO: Add proccess variables in import.
     def _format_resource(self, setting, file_path):
         if setting.startswith('${'):
-            return self._check_and_replace_vars(setting, [])
+            resource_name, _ = self._check_and_replace_vars(setting, [])
+            return resource_name
         if path.isabs(setting):
             return setting
         else:
