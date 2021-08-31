@@ -21,6 +21,7 @@ from db_json_settings import DBJsonSetting
 # from rf-4-parser import SampleVisitor
 from parser_utils.rf4_parser import SampleVisitor
 # Import stuff for dispatching variables in names and arguments
+# from parser_utils.path_variables import init_path_variables
 from parser_utils.path_variables import init_path_variables
 
 logging.basicConfig(
