@@ -478,6 +478,7 @@ class DataParser():
             tmp_name = name
         tmp_args = []
         for argument in arguments:
+            tmp_arg = ''
             if argument.startswith('${'):
                 name_components = argument.split('/')
                 arg_path = self.path_variables[name_components[0]]
