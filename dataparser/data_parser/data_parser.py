@@ -191,7 +191,7 @@ class DataParser():
         # for keyword in lib.keywords:
         # breakpoint()
         # Try to debug Browser library parsing fail
-        logging.debug(lib.name, lib.keywords[0]['name'])
+        logging.debug(lib.name, lib.keywords[0].name)
         for keyword in lib.keywords:
             kw = {}
             kw[DBJsonSetting.keyword_name] = keyword.name
