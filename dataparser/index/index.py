@@ -27,17 +27,17 @@ def index_a_table(params):
     """
     name = multiprocessing.current_process().name
     logging.info('Starting name: %s', name)
-    db_path, table_name, index_path, xml_libraries = params
-    index = Index(db_path, index_path, xml_libraries)
+    db_path, table_name, index_path, path_file, xml_libraries = params
+    index = Index(db_path, index_path, path_file, xml_libraries)
     index.index_consturctor(table_name)
 
 
 class Index(object):
     """Reads the database and returns index's of keywords and variables"""
 
-    def __init__(self, db_path, index_path, xml_libraries=None):
+    def __init__(self, db_path, index_path, path_file, xml_libraries=None):
         self.queue = ParsingQueue()
-        self.data_parser = DataParser()
+        self.data_parser = DataParser(path_file)
         self.index_path = index_path
         self.db_path = db_path
         self.xml_libraries = xml_libraries
