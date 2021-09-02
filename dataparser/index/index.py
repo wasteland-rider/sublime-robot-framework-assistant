@@ -6,6 +6,12 @@ from os import path, listdir
 from json import load as json_load
 from json import dump as json_dump
 from collections import namedtuple
+# from ..parser_utils.file_formatter import rf_table_name, lib_table_name
+# from ..parser_utils.util import get_index_name
+# from ..data_queue.queue import ParsingQueue
+# from ..data_parser.data_parser import DataParser
+# from setting.db_json_settings import DBJsonSetting
+# from ..data_queue.finder import finder
 from parser_utils.file_formatter import rf_table_name, lib_table_name
 from parser_utils.util import get_index_name
 from data_queue.queue import ParsingQueue
@@ -183,6 +189,7 @@ class Index(object):
 
     def get_library_imports(self, data):
         l = []
+        # breakpoint()
         for lib in data[DBJsonSetting.libraries]:
             if lib[DBJsonSetting.library_path]:
                 lib_import = lib[DBJsonSetting.library_path]

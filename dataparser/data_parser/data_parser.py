@@ -15,13 +15,17 @@ import xml.etree.ElementTree as ET
 from tempfile import mkdtemp
 import logging
 import inspect
+# from ..parser_utils.util import normalise_path
+# from setting.db_json_settings import DBJsonSetting
 from parser_utils.util import normalise_path
 from db_json_settings import DBJsonSetting
 # Test import with new parser from RobotFramework 4
 # from rf-4-parser import SampleVisitor
+# from ..parser_utils.rf4_parser import SampleVisitor
 from parser_utils.rf4_parser import SampleVisitor
 # Import stuff for dispatching variables in names and arguments
 # from parser_utils.path_variables import init_path_variables
+# from ..parser_utils.path_vars import init_path_variables
 from parser_utils.path_vars import init_path_variables
 
 logging.basicConfig(
@@ -173,9 +177,11 @@ class DataParser():
         lib_with_args = self._lib_arg_formatter(library, args)
         kws = {}
         try:
+            # breakpoint()
             lib = self.libdoc.build(lib_with_args)
             # breakpoint()
         except DataError:
+            # breakpoint()
             raise ValueError(
                 'Library does not exist: {0}'.format(library))
         if library in STDLIBS:
@@ -191,7 +197,7 @@ class DataParser():
         # for keyword in lib.keywords:
         # breakpoint()
         # Try to debug Browser library parsing fail
-        logging.debug(lib.name, lib.keywords[0].name)
+        # logging.debug('Lib name: {} has first keyword name: {}'.format(lib.name, lib.keywords[0].name))
         for keyword in lib.keywords:
             kw = {}
             kw[DBJsonSetting.keyword_name] = keyword.name
@@ -480,18 +486,20 @@ class DataParser():
             tmp_name = name
         tmp_args = []
         for argument in arguments:
-            tmp_arg = ''
             if argument.startswith('${'):
-                name_components = argument.split('/')
-                arg_path = self.path_variables[name_components[0]]
+                tmp_arg = ''
+                arg_components = argument.split('/')
+                arg_path = self.path_variables[arg_components[0]]
                 if not arg_path:
                     continue
-                if name_components[-1]:
-                    tmp_arg = '/'.join((arg_path, name_components[-1]))
+                if arg_components[-1]:
+                    tmp_arg = '/'.join((arg_path, arg_components[-1]))
                 else:
-                    tmp_arg = '/'.join((arg_path, name_components[-2]))
-                tmp_arg = arg_path.abspath(tmp_arg)
-            tmp_args.append(tmp_arg)
+                    tmp_arg = '/'.join((arg_path, arg_components[-2]))
+                tmp_arg = path.abspath(tmp_arg)
+                tmp_args.append(tmp_arg)
+            else:
+                tmp_args.append(argument)
         return tmp_name, tmp_args
 
 
