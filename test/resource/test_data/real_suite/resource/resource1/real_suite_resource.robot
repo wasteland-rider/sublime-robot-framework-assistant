@@ -1,7 +1,8 @@
 *** Settings ***
 Library           ../../libs/SuiteLib.py    2
 Library           Process
-Resource          ../../resource2/real_suite_resource.robot
+# Resource          ../../resource2/real_suite_resource.robot
+Resource          ../resource2/real_suite_resource.robot
 Variables         ../var_file/variables.py    some_arg
 
 *** Variables ***
