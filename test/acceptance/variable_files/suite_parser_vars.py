@@ -46,8 +46,8 @@ def create_simple_test(resource_dir):
     result['resources'] = [path.join(resource_dir, 'simple_resource2.robot')]
     result['variable_files'] = [
         {path.join(resource_dir, 'simple_variable_file.py'):
-            # {'variable_file_arguments': ['arg11', 'arg22']}}
-            {'variable_file_arguments': ('arg11', 'arg22')}}
+            {'variable_file_arguments': ['arg11', 'arg22']}}
+            # {'variable_file_arguments': ('arg11', 'arg22')}}
         ]
     result['variables'] = ['${VAR2}']
     kws = {}
@@ -68,6 +68,7 @@ def create_simple_resource(resource_dir):
         {'library_name': 'SeleniumLibrary',
          'library_alias': None,
          'library_arguments': ('timeout=5.0', 'env=Test'),
+         # 'library_arguments': ['timeout=5.0', 'env=Test'],
          'library_path': None},
         {'library_name': 'FooBar.py',
          'library_alias': None,
@@ -76,7 +77,8 @@ def create_simple_resource(resource_dir):
         ]
     result['variable_files'] = [
         {path.join(resource_dir, 'simple_variable_file.py'):
-            {'variable_file_arguments': ('arg11', 'arg22')}}
+            # {'variable_file_arguments': ('arg11', 'arg22')}}
+            {'variable_file_arguments': ['arg11', 'arg22']}}
         ]
     result['resources'] = [path.join(resource_dir, 'simple_resource2.robot')]
     kws = {}
@@ -106,14 +108,16 @@ def get_args(**args):
             arg.append('${' + k + '}=${' + args[k] + '}')
         else:
             arg.append('${' + k + '}')
-    return arg
+    # return arg
+    return tuple(arg)
 
 
 def my_kw_1():
     kw = {}
     kw['keyword_arguments'] = get_args(arg1='False', arg2='True')
     kw['documentation'] = 'Some documentation'
-    kw['tags'] = ['some_tag', 'other_tag']
+    kw['tags'] = sorted(['some_tag', 'other_tag'])
+    # kw['tags'] = ['other_tag', 'some_tag']
     kw['keyword_name'] = 'My Kw 1'
     return kw
 

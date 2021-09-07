@@ -11,7 +11,8 @@ from data_queue.scanner import Scanner
 class TestScanner(unittest.TestCase):
 
     def setUp(self):
-        self.scanner = Scanner()
+        self.path_file = os.path.join(env.TEST_DATA_DIR, 'relative_import_suite/Paths.robot')
+        self.scanner = Scanner(self.path_file)
         self.db_dir = os.path.join(
             env.RESULTS_DIR,
             'scanner',
@@ -284,7 +285,7 @@ class TestScanner(unittest.TestCase):
         self.assertEqual(len(self.scanner.queue.queue), 2)
 
     def test_scan_with_xml_lib(self):
-        scaner = Scanner(self.xml_libs)
+        scaner = Scanner(self.path_file, self.xml_libs)
         scaner.scan(
             self.real_suite,
             'robot',

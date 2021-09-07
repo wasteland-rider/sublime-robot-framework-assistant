@@ -1,5 +1,5 @@
 *** Settings ***
-Library           data_parser.data_parser.DataParser
+Library           data_parser.data_parser.DataParser    None
 Library           Collections
 Library           OperatingSystem
 Library           String

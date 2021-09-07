@@ -1,5 +1,5 @@
 *** Settings ***
-Library           data_parser.data_parser.DataParser
+Library           data_parser.data_parser.DataParser    None
 Library           Collections
 Variables         variable_files/suite_parser_vars.py
 
@@ -33,3 +33,6 @@ Parser Should Be Able To Parse Variable File Without Arguments
     Dictionaries Should Be Equal
     ...    ${result}
     ...    ${SIMPLE_VAR}
+
+# Parser Should Be Able To Parse Import With Variable
+

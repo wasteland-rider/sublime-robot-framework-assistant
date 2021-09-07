@@ -26,7 +26,8 @@ class TestIndexing(unittest.TestCase):
             env.TEST_DATA_DIR,
             'suite_tree'
         )
-        scanner = Scanner()
+        cls.path_file = os.path.join(env.TEST_DATA_DIR, 'relative_import_suite/Paths.robot')
+        scanner = Scanner(cls.path_file)
         scanner.scan(
             cls.suite_dir,
             'robot',
@@ -46,7 +47,7 @@ class TestIndexing(unittest.TestCase):
                 shutil.rmtree(self.index_dir)
                 sleep(0.1)
         os.makedirs(self.index_dir)
-        self.index = Index(self.db_dir, self.index_dir)
+        self.index = Index(self.db_dir, self.index_dir, self.path_file)
 
     def test_parse_table_data(self):
         t_name = os.path.join(
@@ -270,13 +271,13 @@ class TestIndexing(unittest.TestCase):
         db_dir_with_xml = os.path.join(
             env.RESULTS_DIR,
             'db_dir_with_xml')
-        scanner = Scanner(xml_libs)
+        scanner = Scanner(self.path_file, xml_libs)
         scanner.scan(
             self.suite_dir,
             'robot',
             db_dir_with_xml
         )
-        index = Index(db_dir_with_xml, self.index_dir, self.xml_libs)
+        index = Index(db_dir_with_xml, self.index_dir, self.path_file, self.xml_libs)
         index.index_consturctor(self.resource_a_table_name)
         files = os.listdir(self.index_dir)
         self.assertEqual(len(files), 1)

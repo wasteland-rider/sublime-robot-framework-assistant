@@ -27,17 +27,18 @@ class TestGetKeywordFromResource(unittest.TestCase):
             env.TEST_DATA_DIR,
             'suite_tree'
         )
+        cls.path_file = path.join(env.TEST_DATA_DIR, 'relative_import_suite/Paths.robot')
         if path.exists(db_base):
             shutil.rmtree(db_base)
         mkdir(db_base)
         mkdir(cls.db_dir)
         mkdir(cls.index_dir)
-        scanner = Scanner()
+        scanner = Scanner(cls.path_file)
         scanner.scan(
             cls.suite_dir,
             'robot',
             cls.db_dir)
-        index_all(cls.db_dir, cls.index_dir)
+        index_all(cls.db_dir, cls.index_dir, cls.path_file)
         cls.rf_ext = 'robot'
 
     def setUp(self):

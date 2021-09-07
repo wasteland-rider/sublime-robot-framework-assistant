@@ -27,17 +27,18 @@ class TestJumpToFile(unittest.TestCase):
             env.TEST_DATA_DIR,
             'suite_tree'
         )
+        cls.path_file = os.path.join(env.TEST_DATA_DIR, 'relative_import_suite/Paths.robot')
         if os.path.exists(db_base):
             shutil.rmtree(db_base)
         os.mkdir(db_base)
         os.mkdir(cls.db_dir)
         os.mkdir(cls.index_dir)
-        scanner = Scanner()
+        scanner = Scanner(cls.path_file)
         scanner.scan(
             cls.suite_dir,
             'robot',
             cls.db_dir)
-        index_all(cls.db_dir, cls.index_dir)
+        index_all(cls.db_dir, cls.index_dir, cls.path_file)
         cls.rf_ext = 'robot'
 
     def setUp(self):

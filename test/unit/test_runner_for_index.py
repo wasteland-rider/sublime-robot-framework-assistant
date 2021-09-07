@@ -17,7 +17,8 @@ class TestRunner(unittest.TestCase):
             'db_dir'
         )
         cls.workspace = os.path.join(env.TEST_DATA_DIR, 'suite_tree')
-        scanner = Scanner()
+        cls.path_file = os.path.join(env.TEST_DATA_DIR, 'relative_import_suite/Paths.robot')
+        scanner = Scanner(cls.path_file)
         scanner.scan(
             cls.workspace,
             'robot',
