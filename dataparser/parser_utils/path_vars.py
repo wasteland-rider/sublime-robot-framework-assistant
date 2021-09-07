@@ -26,7 +26,7 @@ class PathVariables(Variables):
             # Need this to dispatch alredy resolved variables, like ${CURDIR}
                 self.store.add(key, path.abspath(value))
 
-# Need this workkarournd function to deal with ${/} robot variable
+# Need this workarournd function to deal with ${/} robot variable
 def sanitize_slash_var(variables):
     slash_var = '${/}'
     for variable in variables:
@@ -35,6 +35,7 @@ def sanitize_slash_var(variables):
             sanitized_str = variable_str.replace(slash_var, '/')
             variable.value = (sanitized_str, )
 
+# TODO: Add check if path_file is exist and don't crash the whole process if there is no variables in it.
 def init_path_variables(path_file):
     if not path_file:
         return None
