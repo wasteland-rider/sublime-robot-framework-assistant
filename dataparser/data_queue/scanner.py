@@ -85,6 +85,10 @@ class Scanner(object):
         elif not item[1]['scanned']:
             return item
         else:
+            # When queue is processed last item thus have status 'queued' and
+            # breaks test test_queue_populated. Need to force set status 'True'
+            # to the last item in queue.
+            self.queue.force_set(item[0])
             return {}
 
     def add_to_queue(self, data):
