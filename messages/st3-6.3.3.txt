@@ -1,0 +1,4 @@
+Support for RobotFramework 4
+Huge pile of fixes
+Support for variables in library, resource and variables imports
+New setting: "path_variables_file"
