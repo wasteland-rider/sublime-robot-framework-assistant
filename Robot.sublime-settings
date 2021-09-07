@@ -221,5 +221,15 @@
         Configuration for typical Gherkin stories:
         "robot_framework_keyword_prefixes" : ["Given","When","Then","And","But"]
     */
-    "robot_framework_keyword_prefixes" : []
+    "robot_framework_keyword_prefixes" : [],
+    /*  Path to variables file
+        If you have relative imports in your project, like this:
+            Library    ${some_var}/SomeLib.py
+        You can enter path to your file with such variables here. And all relative
+        import will be resolved into real path to entityt.
+        Supported for Library, Resource and Variable imports.
+        Also path variable in import arguments will be processed.
+        By default set to false.
+    */
+    "path_variables_file": false
 }
