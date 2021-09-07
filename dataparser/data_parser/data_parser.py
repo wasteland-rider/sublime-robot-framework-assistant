@@ -24,9 +24,10 @@ from db_json_settings import DBJsonSetting
 # from ..parser_utils.rf4_parser import SampleVisitor
 from parser_utils.rf4_parser import SampleVisitor
 # Import stuff for dispatching variables in names and arguments
-# from parser_utils.path_variables import init_path_variables
 # from ..parser_utils.path_vars import init_path_variables
 from parser_utils.path_vars import init_path_variables
+# Test import "native" Robot Framework parsers
+from robot.running.builder import RobotParser
 
 logging.basicConfig(
     format='%(levelname)s:%(asctime)s: %(message)s',
@@ -60,15 +61,18 @@ class DataParser():
                 # model = parsing.TestDataDirectory(source=folder).populate()
                 # data = self._parse_dir(folder)
                 # for table in data:
-                file_model = get_init_model(file_path)
+                # file_model = get_init_model(file_path)
                 # model = SampleVisitor()
                 # model.visit(file_model)
+                model = RobotParser().parse_init_file(file_path).resource
+
 
             else:
                 # model = parsing.ResourceFile(file_path).populate()
-                file_model = get_resource_model(file_path)
-            model = SampleVisitor()
-            model.visit(file_model)
+                # file_model = get_resource_model(file_path)
+                model = RobotParser().parse_resource_file(file_path)
+            # model = SampleVisitor()
+            # model.visit(file_model)
             data =  self._parse_robot_data(file_path, model)
             data[DBJsonSetting.table_type] = DBJsonSetting.resource_file
             return data
@@ -95,9 +99,10 @@ class DataParser():
         self.file_path = file_path
         if path.exists(file_path):
             # model = parsing.TestCaseFile(source=file_path).populate()
-            file_model = get_resource_model(file_path)
-            model = SampleVisitor()
-            model.visit(file_model)
+            # file_model = get_resource_model(file_path)
+            # model = SampleVisitor()
+            # model.visit(file_model)
+            model = RobotParser().parse_suite_file(file_path).resource
             data = self._parse_robot_data(file_path, model)
             data[DBJsonSetting.table_type] = DBJsonSetting.suite
             return data
@@ -177,41 +182,47 @@ class DataParser():
         lib_with_args = self._lib_arg_formatter(library, args)
         kws = {}
         try:
-            # breakpoint()
-            lib = self.libdoc.build(lib_with_args)
-            # breakpoint()
+            # lib = self.libdoc.build(lib_with_args)
+            lib = self.libdoc.build(lib_with_args).to_dictionary()
         except DataError:
-            # breakpoint()
             raise ValueError(
                 'Library does not exist: {0}'.format(library))
-        if library in STDLIBS:
-            import_name = 'robot.libraries.' + library
-        else:
-            import_name = library
-        importer = Importer('test library')
-        lib_args = self._argument_strip(lib, args)
-        libcode = importer.import_class_or_module(
-            import_name, instantiate_with_args=lib_args,
-            return_source=False)
-        kw_with_deco = self._get_keywords_with_robot_name(libcode)
+        # if library in STDLIBS:
+        #     import_name = 'robot.libraries.' + library
+        # else:
+        #     import_name = library
+        # importer = Importer('test library')
+        # lib_args = self._argument_strip(lib, args)
+        # libcode = importer.import_class_or_module(
+        #     import_name, instantiate_with_args=lib_args,
+        #     return_source=False)
+        # kw_with_deco = self._get_keywords_with_robot_name(libcode)
         # for keyword in lib.keywords:
-        # breakpoint()
         # Try to debug Browser library parsing fail
         # logging.debug('Lib name: {} has first keyword name: {}'.format(lib.name, lib.keywords[0].name))
-        for keyword in lib.keywords:
+        for keyword in lib['keywords']:
             kw = {}
-            kw[DBJsonSetting.keyword_name] = keyword.name
-            kw[DBJsonSetting.tags] = list(keyword.tags._tags)
-            kw[DBJsonSetting.keyword_arguments] = self._assemble_arguments(keyword.args.positional_or_named, keyword.args.defaults)
-            # kw[DBJsonSetting.keyword_arguments] = keyword.args.positional_or_named
-            kw[DBJsonSetting.documentation] = keyword.doc
-            if keyword.name in kw_with_deco:
-                function_name = kw_with_deco[keyword.name]
-            else:
-                function_name = keyword.name
-            kw[DBJsonSetting.keyword_file] = self._get_library_kw_source(
-                libcode, function_name)
-            kws[strip_and_lower(keyword.name)] = kw
+            # kw[DBJsonSetting.keyword_name] = keyword.name
+            kw[DBJsonSetting.keyword_name] = keyword['name']
+            # kw[DBJsonSetting.tags] = list(keyword.tags._tags)
+            # kw[DBJsonSetting.tags] = keyword.tags
+            kw[DBJsonSetting.tags] = keyword['tags']
+            # kw[DBJsonSetting.keyword_arguments] = self._assemble_arguments(keyword.args.positional_or_named, keyword.args.defaults)
+            # kw[DBJsonSetting.keyword_arguments] = keyword.args
+            # kw[DBJsonSetting.keyword_arguments] = keyword['args']
+            kw[DBJsonSetting.keyword_arguments] = self._join_args(keyword['args'])
+            # kw[DBJsonSetting.documentation] = keyword.doc
+            kw[DBJsonSetting.documentation] = keyword['doc']
+            # if keyword.name in kw_with_deco:
+            #     function_name = kw_with_deco[keyword.name]
+            # else:
+            #     function_name = keyword.name
+            # kw[DBJsonSetting.keyword_file] = self._get_library_kw_source(
+            #     libcode, function_name)
+            # kw[DBJsonSetting.keyword_file] = keyword.source
+            kw[DBJsonSetting.keyword_file] = keyword['source']
+            # kws[strip_and_lower(keyword.name)] = kw
+            kws[strip_and_lower(keyword['name'])] = kw
         return kws
     
     # Assemble list with keyword' args, both positional and named
@@ -230,6 +241,16 @@ class DataParser():
             else:
                 formated_args.append(name)
         return formated_args
+    
+    def _join_args(self, arguments):
+        formated_args = []
+        if not arguments:
+            return formated_args
+        # for argument in arguments:
+        #     formated_args.append(argument['repr'] if argument['required'])
+        # For now leave obtain all keyword' arguments. Later will go with only required args.
+        # return [arg['repr'] for arg in arguments if arg['required']]
+        return [arg['repr'] for arg in arguments]
 
     def _argument_strip(self, lib, given_args):
         formated_args = []
@@ -383,10 +404,19 @@ class DataParser():
             tmp = {}
             tmp[DBJsonSetting.keyword_arguments] = kw.args
             tmp[DBJsonSetting.documentation] = kw.doc
-            tmp[DBJsonSetting.tags] = kw.tags
+            # tmp[DBJsonSetting.tags] = kw.tags
+            tmp[DBJsonSetting.tags] = self._get_kw_tags(kw.tags)
             tmp[DBJsonSetting.keyword_name] = kw.name
             kw_data[strip_and_lower(kw.name)] = tmp
         return kw_data
+
+    def _get_kw_tags(self, tags):
+        kw_tags = []
+        if not tags:
+            return kw_tags
+        for tag in tags:
+            kw_tags.append(tag)
+        return kw_tags
 
     # def _get_imports(self, model, file_dir, file_path):
     #     lib = []
@@ -405,18 +435,19 @@ class DataParser():
         res = []
         var_files = []
         # for setting in model.setting_table.imports:
-        #     if setting.type == 'Library':
-        #         lib.append(self._format_library(setting, file_dir))
-        #     elif setting.type == 'Resource':
-        #         res.append(self._format_resource(setting, file_path))
-        #     elif setting.type == 'Variables':
-        #         var_files.append(self._format_variable_file(setting))
-        for library in model.libraries_import:
-            lib.append(self._format_library(library, file_dir))
-        for resource in model.resources_import:
-            res.append(self._format_resource(resource, file_path))
-        for variable in model.variables_import:
-            var_files.append(self._format_variable_file(variable))
+        for setting in model.imports:
+            if setting.type == 'Library':
+                lib.append(self._format_library(setting, file_dir))
+            elif setting.type == 'Resource':
+                res.append(self._format_resource(setting, file_path))
+            elif setting.type == 'Variables':
+                var_files.append(self._format_variable_file(setting))
+        # for library in model.libraries_import:
+        #     lib.append(self._format_library(library, file_dir))
+        # for resource in model.resources_import:
+        #     res.append(self._format_resource(resource, file_path))
+        # for variable in model.variables_import:
+        #     var_files.append(self._format_variable_file(variable))
         return lib, res, var_files
 
     def _format_library(self, setting, file_dir):
@@ -428,43 +459,43 @@ class DataParser():
         elif lib_name.endswith('.py') and path.isfile(lib_name):
             lib_path = normalise_path(lib_name)
             lib_name = path.basename(lib_name)
+        elif lib_name.startswith('${') and not path.isfile(lib_name):
+            processed_lib_name, processed_lib_args = self._check_and_replace_vars(lib_name, setting.args)
+            lib_name = processed_lib_name
+            library_path = normalise_path(lib_name)
         else:
             lib_path = None
-        processed_lib_name, processed_lib_args = self._check_and_replace_vars(lib_name, setting.args)
-        # data[DBJsonSetting.library_name] = lib_name
-        data[DBJsonSetting.library_name] = processed_lib_name
+        data[DBJsonSetting.library_name] = lib_name
         data[DBJsonSetting.library_alias] = setting.alias
-        # data[DBJsonSetting.library_arguments] = setting.args
-        data[DBJsonSetting.library_arguments] = processed_lib_args
+        data[DBJsonSetting.library_arguments] = setting.args
+        # data[DBJsonSetting.library_arguments] = processed_lib_args
         data[DBJsonSetting.library_path] = lib_path
         return data
 
-    # TODO: Add proccess variables in import.
     def _format_resource(self, setting, file_path):
-        if setting.startswith('${'):
+        if setting.name.startswith('${'):
             resource_name, _ = self._check_and_replace_vars(setting, [])
             return resource_name
-        if path.isabs(setting):
-            return setting
+        if path.isabs(setting.name):
+            return setting.name
         else:
             c_dir = path.dirname(self.file_path)
-            resource_path = normalise_path(path.join(c_dir, setting))
+            resource_path = normalise_path(path.join(c_dir, setting.name))
             if not path.isfile(resource_path):
                 print(('Import failure on file: {0},'.format(file_path),
-                       'could not locate: {0}'.format(setting)))
+                       'could not locate: {0}'.format(setting.name)))
             return resource_path
 
-    # TODO: Add proccess variables in import.
     def _format_variable_file(self, setting):
         data = {}
+        processed_var_name, processed_var_args = self._check_and_replace_vars(setting.name, setting.args)
         v_path = normalise_path(path.join(
             path.dirname(self.file_path), setting.name))
         args = {}
-        processed_var_name, processed_var_args = self._check_and_replace_vars(setting.name, setting.args)
         # args['variable_file_arguments'] = setting.args
         args['variable_file_arguments'] = processed_var_args
         # data[v_path] = args
-        data[processed_var_name] = args
+        data[v_path] = args
         return data
 
     def _check_and_replace_vars(self, name, arguments):
@@ -510,5 +541,13 @@ class DataParser():
     #         if var:
     #             var_data.append(var.name)
     #     return var_data
+
     def _get_global_variables(self, model):
-        return model.variables
+        var_data = []
+        for var in model.variables:
+            if var:
+                var_data.append(var.name)
+        return var_data
+
+    # def _get_global_variables(self, model):
+    #     return model.variables
